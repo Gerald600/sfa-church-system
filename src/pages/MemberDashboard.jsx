@@ -14,12 +14,13 @@ import {
   AlertTriangle, AlertCircle, Bell, ClipboardList, 
   BookOpen, Share2, FileCheck, Landmark, MessageSquare,
   Search, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCcw, Download,
-  Shield, Copy
+  Shield, Copy, Megaphone
 } from 'lucide-react'
 import QRCode from 'react-qr-code'
 import { feedbackSchema, contributionSchema } from '../utils/validation'
 import DailyVerse from '../components/DailyVerse'
 import GlobalBudgetOverview from '../components/GlobalBudgetOverview'
+import AdBannerWidget, { SponsoredAnnouncementsWidget, ParishDirectoryView } from '../components/dashboard/member/AdBannerWidget'
 import { 
   Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -718,6 +719,18 @@ export default function MemberDashboard() {
             </button>
 
             <button 
+              onClick={() => { setActiveTab('directory'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm transition-all font-semibold ${
+                activeTab === 'directory' 
+                  ? 'bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-indigo-400 font-semibold' 
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Megaphone className="w-5 h-5" />
+              <span>Business Directory</span>
+            </button>
+
+            <button 
               onClick={() => { setActiveTab('security'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm transition-all font-semibold ${
                 activeTab === 'security' 
@@ -768,6 +781,7 @@ export default function MemberDashboard() {
                activeTab === 'phases' ? 'Construction Phase Management' : 
                activeTab === 'ledger' ? 'Global Contributions Ledger' :
                activeTab === 'feedback' ? 'Feedback & Questions Hub' :
+               activeTab === 'directory' ? 'Parish Business Directory & Marketplace' :
                activeTab === 'security' ? 'Security Settings' :
                `${activeTab} Panel`}
             </h1>
@@ -804,6 +818,9 @@ export default function MemberDashboard() {
                   }, 120)
                 }}
               />
+
+              {/* Verified Church Partner & Sponsor Visual Banner Carousel */}
+              <AdBannerWidget placement="dashboard" />
 
               {!twoFactorEnabled && (
                 <div className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-2xl p-5 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0 animate-fade-in shadow-md shadow-indigo-500/5">
@@ -935,6 +952,9 @@ export default function MemberDashboard() {
                       </div>
                     ))}
                   </div>
+
+                  {/* Sponsored Community Announcements & Classifieds */}
+                  <SponsoredAnnouncementsWidget placement="announcements" />
                 </div>
 
                 <div className="space-y-6">
@@ -2131,6 +2151,11 @@ export default function MemberDashboard() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* TAB: PARISH BUSINESS DIRECTORY & ADS */}
+          {activeTab === 'directory' && (
+            <ParishDirectoryView />
           )}
 
           {/* TAB: SECURITY SETTINGS */}

@@ -624,3 +624,65 @@ SELECT
     COALESCE(raw_user_meta_data->>'phone', '')
 FROM auth.users
 ON CONFLICT (id) DO NOTHING;
+
+-- ==========================================
+-- HYBRID ADVERTISING & BUSINESS DIRECTORY SYSTEM
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.advertisements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(255) NOT NULL,
+  company_name VARCHAR(255) NOT NULL,
+  contact_info VARCHAR(255),
+  description TEXT,
+  ad_type VARCHAR(50) NOT NULL DEFAULT 'banner' CHECK (ad_type IN ('banner', 'directory', 'classified')),
+  placement VARCHAR(50) NOT NULL DEFAULT 'dashboard' CHECK (placement IN ('dashboard', 'announcements', 'all')),
+  image_url TEXT,
+  target_url TEXT,
+  start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  end_date DATE NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE public.advertisements ENABLE ROW LEVEL SECURITY;
+
+CREATE INDEX IF NOT EXISTS idx_advertisements_active_dates ON public.advertisements(is_active, start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_advertisements_placement ON public.advertisements(placement);
+
+DROP POLICY IF EXISTS "Public and authenticated can read active ads" ON public.advertisements;
+CREATE POLICY "Public and authenticated can read active ads"
+  ON public.advertisements
+  FOR SELECT
+  USING (
+    is_active = true 
+    AND start_date <= CURRENT_DATE 
+    AND end_date >= CURRENT_DATE
+  );
+
+DROP POLICY IF EXISTS "Admins have full CRUD access to advertisements" ON public.advertisements;
+CREATE POLICY "Admins have full CRUD access to advertisements"
+  ON public.advertisements
+  FOR ALL
+  USING (
+    auth.jwt() ->> 'role' = 'admin'
+    OR EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  )
+  WITH CHECK (
+    auth.jwt() ->> 'role' = 'admin'
+    OR EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+DROP TRIGGER IF EXISTS trigger_advertisements_updated_at ON public.advertisements;
+CREATE TRIGGER trigger_advertisements_updated_at
+  BEFORE UPDATE ON public.advertisements
+  FOR EACH ROW
+  EXECUTE FUNCTION update_advertisements_modtime();
+
+GRANT ALL ON TABLE public.advertisements TO postgres, anon, authenticated, service_role;

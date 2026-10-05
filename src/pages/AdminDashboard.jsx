@@ -13,10 +13,11 @@ import {
   Activity, Sun, Moon, LogOut, DollarSign, TrendingUp, Check, X,
   Shield, ClipboardList, Download, Upload, AlertCircle, AlertTriangle, Key, MessageSquare, Menu, Printer,
   FileSpreadsheet, Loader2, SlidersHorizontal, Settings2, MessageSquareQuote,
-  Database, Layers, FileText, Search, ChevronLeft
+  Database, Layers, FileText, Search, ChevronLeft, Megaphone
 } from 'lucide-react'
 import { feedbackReplySchema, committeeMemberSchema } from '../utils/validation'
 import GlobalBudgetOverview from '../components/GlobalBudgetOverview'
+import AdManager from '../components/dashboard/admin/AdManager'
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
   ResponsiveContainer, PieChart, Pie, Cell
@@ -919,6 +920,18 @@ export default function AdminDashboard() {
             </button>
 
             <button 
+              onClick={() => { setActiveTab('ads'); setMobileMenuOpen(false); }}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm transition-all ${
+                activeTab === 'ads' 
+                  ? 'bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-indigo-400 font-semibold' 
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+              }`}
+            >
+              <Megaphone className="w-5 h-5" />
+              <span>Ad & Directory Hub</span>
+            </button>
+
+            <button 
               onClick={() => { setActiveTab('security'); setMobileMenuOpen(false); }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm transition-all ${
                 activeTab === 'security' 
@@ -978,7 +991,7 @@ export default function AdminDashboard() {
               <Menu className="w-5 h-5" />
             </button>
             <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 capitalize truncate">
-              {activeTab === 'security' ? 'Security Settings' : activeTab.replace('_', ' ')} Panel
+              {activeTab === 'security' ? 'Security Settings' : activeTab === 'ads' ? 'Ad Management & Directory' : `${activeTab.replace('_', ' ')} Panel`}
             </h1>
           </div>
           
@@ -2856,6 +2869,13 @@ export default function AdminDashboard() {
                 )}
               </div>
 
+            </div>
+          )}
+
+          {/* TAB: ADVERTISEMENTS & BUSINESS DIRECTORY */}
+          {activeTab === 'ads' && (
+            <div className="space-y-6">
+              <AdManager />
             </div>
           )}
 

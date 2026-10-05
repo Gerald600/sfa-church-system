@@ -9,6 +9,7 @@ export * from './data/useContributions'
 export * from './data/useExpenses'
 export * from './data/usePhases'
 export * from './data/usePledges'
+export * from './data/useAds'
 
 // ==========================================
 // DOMAIN QUERIES
