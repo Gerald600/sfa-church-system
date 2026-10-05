@@ -635,7 +635,7 @@ CREATE TABLE IF NOT EXISTS public.advertisements (
   contact_info VARCHAR(255),
   description TEXT,
   ad_type VARCHAR(50) NOT NULL DEFAULT 'banner' CHECK (ad_type IN ('banner', 'directory', 'classified')),
-  placement VARCHAR(50) NOT NULL DEFAULT 'dashboard' CHECK (placement IN ('dashboard', 'announcements', 'all')),
+  placement VARCHAR(50) NOT NULL DEFAULT 'dashboard' CHECK (placement IN ('website', 'dashboard', 'announcements', 'all')),
   image_url TEXT,
   target_url TEXT,
   start_date DATE NOT NULL DEFAULT CURRENT_DATE,

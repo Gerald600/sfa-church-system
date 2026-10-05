@@ -276,6 +276,7 @@ export const AdManager = () => {
             className="px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none"
           >
             <option value="all">All Placements</option>
+            <option value="website">Public Website Homepage</option>
             <option value="dashboard">Member Dashboard Only</option>
             <option value="announcements">Announcements Feed Only</option>
           </select>
@@ -561,6 +562,7 @@ export const AdManager = () => {
                       onChange={(e) => setForm({ ...form, placement: e.target.value })}
                       className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none"
                     >
+                      <option value="website">Public Website Homepage</option>
                       <option value="dashboard">Member Dashboard View</option>
                       <option value="announcements">Announcements Feed</option>
                       <option value="all">Universal (All Portals)</option>

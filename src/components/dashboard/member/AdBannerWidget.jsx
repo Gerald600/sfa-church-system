@@ -23,6 +23,7 @@ export function isAdCurrentlyValid(ad) {
 export function AdBannerWidget({ placement = 'dashboard' }) {
   const { data: ads = [], isLoading } = useActiveAds(placement)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [direction, setDirection] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
 
   // Filter valid banner ads
@@ -34,6 +35,7 @@ export function AdBannerWidget({ placement = 'dashboard' }) {
   useEffect(() => {
     if (bannerAds.length <= 1 || isPaused) return
     const timer = setInterval(() => {
+      setDirection(1)
       setCurrentIndex(prev => (prev + 1) % bannerAds.length)
     }, 7000)
     return () => clearInterval(timer)
@@ -53,13 +55,41 @@ export function AdBannerWidget({ placement = 'dashboard' }) {
   const currentAd = bannerAds[currentIndex]
 
   const handlePrev = (e) => {
-    e.stopPropagation()
+    if (e) e.stopPropagation()
+    setDirection(-1)
     setCurrentIndex(prev => (prev === 0 ? bannerAds.length - 1 : prev - 1))
   }
 
   const handleNext = (e) => {
-    e.stopPropagation()
+    if (e) e.stopPropagation()
+    setDirection(1)
     setCurrentIndex(prev => (prev + 1) % bannerAds.length)
+  }
+
+  const slideVariants = {
+    enter: (dir) => ({
+      x: dir > 0 ? 120 : dir < 0 ? -120 : 0,
+      opacity: 0,
+      scale: 0.98
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        x: { type: 'spring', stiffness: 280, damping: 26 },
+        opacity: { duration: 0.3 }
+      }
+    },
+    exit: (dir) => ({
+      x: dir < 0 ? 120 : -120,
+      opacity: 0,
+      scale: 0.98,
+      transition: {
+        x: { type: 'spring', stiffness: 280, damping: 26 },
+        opacity: { duration: 0.25 }
+      }
+    })
   }
 
   return (
@@ -72,14 +102,26 @@ export function AdBannerWidget({ placement = 'dashboard' }) {
       <div className="absolute -top-24 -right-24 w-80 h-80 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" custom={direction}>
         <motion.div
           key={currentAd.id || currentIndex}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.45, ease: 'easeInOut' }}
-          className="relative z-10 flex flex-col md:flex-row items-stretch justify-between p-5 md:p-6 gap-6"
+          custom={direction}
+          variants={slideVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.25}
+          onDragEnd={(e, { offset, velocity }) => {
+            const swipeThreshold = 40
+            if (offset.x < -swipeThreshold || velocity.x < -200) {
+              handleNext(e)
+            } else if (offset.x > swipeThreshold || velocity.x > 200) {
+              handlePrev(e)
+            }
+          }}
+          className="relative z-10 flex flex-col md:flex-row items-stretch justify-between p-5 md:p-6 gap-6 cursor-grab active:cursor-grabbing select-none"
         >
           {/* Ad Content */}
           <div className="flex-1 flex flex-col justify-between space-y-4">
@@ -92,6 +134,11 @@ export function AdBannerWidget({ placement = 'dashboard' }) {
                 <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5 text-indigo-400" />
                   {currentAd.company_name}
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-amber-200 border border-white/10 ml-auto select-none shadow-xs">
+                  <span className="text-amber-400">←</span>
+                  <span>Drag to move</span>
+                  <span className="text-amber-400">→</span>
                 </span>
               </div>
 
@@ -107,7 +154,7 @@ export function AdBannerWidget({ placement = 'dashboard' }) {
             </div>
 
             {/* Footer Actions & Contact info */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center gap-4 pt-2" onClick={(e) => e.stopPropagation()}>
               {currentAd.target_url && (
                 <a
                   href={currentAd.target_url}
@@ -129,18 +176,27 @@ export function AdBannerWidget({ placement = 'dashboard' }) {
             </div>
           </div>
 
-          {/* Ad Image / Graphic */}
+          {/* Ad Image / Graphic (Movable / Draggable) */}
           {currentAd.image_url ? (
-            <div className="md:w-64 lg:w-80 h-44 md:h-auto rounded-xl overflow-hidden bg-slate-950/60 border border-white/10 shrink-0 relative flex items-center justify-center">
+            <motion.div 
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="md:w-64 lg:w-80 h-44 md:h-auto rounded-xl overflow-hidden bg-slate-950/60 border border-white/10 shrink-0 relative flex items-center justify-center shadow-lg group"
+            >
               <img
                 src={currentAd.image_url}
                 alt={currentAd.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
                 onError={(e) => {
                   e.target.style.display = 'none'
                 }}
               />
-            </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                <span className="text-[10px] font-bold text-amber-300 bg-black/60 px-2 py-0.5 rounded-md backdrop-blur-xs">
+                  Click or drag image
+                </span>
+              </div>
+            </motion.div>
           ) : (
             <div className="md:w-64 lg:w-80 h-32 md:h-auto rounded-xl bg-indigo-950/40 border border-indigo-800/40 flex flex-col items-center justify-center p-4 text-center shrink-0">
               <Building2 className="w-10 h-10 text-indigo-400 mb-2 opacity-80" />
@@ -159,13 +215,23 @@ export function AdBannerWidget({ placement = 'dashboard' }) {
             {bannerAds.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentIndex(idx)}
+                onClick={() => {
+                  setDirection(idx > currentIndex ? 1 : -1)
+                  setCurrentIndex(idx)
+                }}
                 className={`h-1.5 rounded-full transition-all cursor-pointer ${
                   currentIndex === idx ? 'w-6 bg-amber-400' : 'w-2 bg-white/30 hover:bg-white/50'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
+          </div>
+
+          {/* Central Drag & Move Prompt */}
+          <div className="hidden sm:flex items-center gap-1.5 text-[10px] text-slate-300 font-medium select-none bg-white/5 px-2.5 py-0.5 rounded-full border border-white/5">
+            <span className="text-amber-400">←</span>
+            <span>Drag or swipe to browse</span>
+            <span className="text-amber-400">→</span>
           </div>
 
           {/* Arrows */}

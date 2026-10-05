@@ -32,6 +32,7 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import FontAdjuster from '../components/FontAdjuster'
+import AdBannerWidget from '../components/dashboard/member/AdBannerWidget'
 
 // Elegant custom Skeleton component matching to Shadcn UI styling
 const Skeleton = ({ className }) => (
@@ -491,6 +492,11 @@ export default function ConstructionOverview() {
             </motion.div>
           </div>
         </div>
+      </section>
+
+      {/* Movable Community & Sponsor Banners Section */}
+      <section className="px-6 max-w-7xl mx-auto py-6">
+        <AdBannerWidget placement="website" />
       </section>
 
       {/* Section C: Vision & Purpose */}
