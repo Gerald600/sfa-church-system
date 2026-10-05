@@ -395,42 +395,7 @@ export default function LoginPage() {
                     Enter your credentials to access the church portal.
                   </p>
                   
-                  {/* Quick Fill helper badges */}
-                  <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmail('admin@org.com')
-                        setPassword('church123')
-                        setError('')
-                      }}
-                      className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-lg text-[11px] font-bold transition-all cursor-pointer"
-                    >
-                      👑 Admin
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmail('lwangagerald006@gmail.com')
-                        setPassword('Admin123!')
-                        setError('')
-                      }}
-                      className="px-2.5 py-1 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 rounded-lg text-[11px] font-bold transition-all cursor-pointer"
-                    >
-                      💼 Treasurer
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEmail('coordinator@sfa.org')
-                        setPassword('Admin123!')
-                        setError('')
-                      }}
-                      className="px-2.5 py-1 bg-teal-500/10 hover:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/30 rounded-lg text-[11px] font-bold transition-all cursor-pointer"
-                    >
-                      📋 Coordinator
-                    </button>
-                  </div>
+
                 </div>
 
                 <form className="space-y-4" onSubmit={handleLogin}>
