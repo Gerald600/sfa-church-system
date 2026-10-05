@@ -1,0 +1,19 @@
+# Dependency and build directories
+node_modules
+.git
+.vscode
+dist
+.gemini
+
+# Scratch and test files
+scratch
+scratch/**
+credentials.txt
+*.log
+*.tmp
+*.sql
+apply_*.js
+test_*.js
+convert.js
+search_logs.js
+Compiled_St_Francis_Construction_Records.md
